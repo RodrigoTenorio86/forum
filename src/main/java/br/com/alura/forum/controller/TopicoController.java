@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,9 +44,9 @@ public class TopicoController {
 	}
 
 	@RequestMapping(value = "/burcarPorNomeCurso", method = RequestMethod.GET)
-	public List<TopicoDTO> findByNameCourse(String nome) {
+	public ResponseEntity<?> findByNameCourse(String nome) {
 		List<Topico> listTopico = topicoRepository.findByCursoNome(nome);
-		return TopicoDTO.coverter(listTopico);
+		return ResponseEntity.ok( TopicoDTO.coverter(listTopico));
 	}
 	
 	@GetMapping(value="/{id}")
@@ -61,8 +62,16 @@ public class TopicoController {
 		Topico topico = form.converter(cursoRepository);
 		topicoRepository.save(topico);
 		
-		URI uri= uriBuilder.path("/topicos/{id}").buildAndExpand(topico.getId()).toUri();
+		URI uri= uriBuilder.path("/{id}").buildAndExpand(topico.getId()).toUri();
 		return ResponseEntity.created(uri).body(new TopicoDTO(topico));
+	}
+	
+	@PutMapping
+	@Transactional(rollbackOn = Exception.class)
+	public ResponseEntity<?> update(@RequestBody @Valid Topico topico){
+		   check(topico.getId());
+		   topicoRepository.save(topico);
+		   return ResponseEntity.ok(new TopicoDTO(topico) );
 	}
 	
 	@DeleteMapping("/{id}")
