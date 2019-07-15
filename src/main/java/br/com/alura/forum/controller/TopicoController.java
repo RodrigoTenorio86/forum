@@ -49,9 +49,10 @@ public class TopicoController {
 	}
 	
 	@GetMapping(value="/{id}")
-	public TopicoDTO getById(@PathVariable Long id) {
-		Topico topico = topicoRepository.getOne(id);
-		return new TopicoDTO(topico);
+	public ResponseEntity<?> getById(@PathVariable Long id) {
+		check(id);
+		Topico topico = topicoRepository.getOne(id);		
+		return ResponseEntity.ok(new TopicoDTO(topico));
 	}
 	
 	@PostMapping
