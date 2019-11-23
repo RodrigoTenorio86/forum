@@ -25,6 +25,7 @@ import br.com.alura.forum.controller.dto.TopicoForm;
 import br.com.alura.forum.modelo.Topico;
 import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
+import br.com.alura.forum.service.TopicoService;
 import br.com.alura.forum.error.ResourceNotFoundException;
 
 @RestController
@@ -32,28 +33,25 @@ import br.com.alura.forum.error.ResourceNotFoundException;
 public class TopicoController {
 
 	@Autowired
-	private TopicoRepository topicoRepository;
+	private TopicoService topicoService;
 	
 	@Autowired
 	private CursoRepository cursoRepository;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public List<TopicoDTO> allList() {
-		List<Topico> listTopicos = topicoRepository.findAll();
-		return TopicoDTO.coverter(listTopicos);
+		return topicoService.allList();
 	}
 
-	@RequestMapping(value = "/burcarPorNomeCurso", method = RequestMethod.GET)
-	public ResponseEntity<?> findByNameCourse(String nome) {
-		List<Topico> listTopico = topicoRepository.findByCursoNome(nome);
-		return ResponseEntity.ok( TopicoDTO.coverter(listTopico));
+	@RequestMapping(value = "/burcarPorNomeCurso/{nome}", method = RequestMethod.GET)
+	public ResponseEntity<?> findByNameCourse( String nome) {
+		return topicoService.findByNameCourse(nome);
 	}
 	
 	@GetMapping(value="/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id) {
 		check(id);
-		Topico topico = topicoRepository.getOne(id);		
-		return ResponseEntity.ok(new TopicoDTO(topico));
+	    return topicoService.getById(id);
 	}
 	
 	@PostMapping
@@ -78,8 +76,7 @@ public class TopicoController {
 	@Transactional
 	public ResponseEntity<?> delete(@PathVariable Long id){
 		check(id);
-		topicoRepository.deleteById(id);
-		return ResponseEntity.ok().build();
+		return topicoService.delete(id);
 	}
 	
 	private void check(Long id)  {
