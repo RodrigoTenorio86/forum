@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,8 +36,7 @@ public class TopicoController {
 	@Autowired
 	private TopicoService topicoService;
 	
-	@Autowired
-	private CursoRepository cursoRepository;
+
 
 	@RequestMapping(method = RequestMethod.GET)
 	public List<TopicoDTO> allList() {
@@ -44,7 +44,7 @@ public class TopicoController {
 	}
 
 	@RequestMapping(value = "/burcarPorNomeCurso/{nome}", method = RequestMethod.GET)
-	public ResponseEntity<?> findByNameCourse( String nome) {
+	public ResponseEntity<?> findByNameCourse(@PathVariable String nome) {
 		return topicoService.findByNameCourse(nome);
 	}
 	
@@ -57,10 +57,10 @@ public class TopicoController {
 	@PostMapping
 	@Transactional
 	public ResponseEntity<TopicoDTO> register(@RequestBody @Valid TopicoForm form,UriComponentsBuilder uriBuilder) {
-		Topico topico = form.converter(cursoRepository);
-		topicoRepository.save(topico);
+		Topico topico = topicoService.register(form);
 		
 		URI uri= uriBuilder.path("/{id}").buildAndExpand(topico.getId()).toUri();
+//	    ResponseEntity<?> outraFormaDeRespond=	new ResponseEntity<>(uri,HttpStatus.CREATED);
 		return ResponseEntity.created(uri).body(new TopicoDTO(topico));
 	}
 	
@@ -68,7 +68,7 @@ public class TopicoController {
 	@Transactional(rollbackOn = Exception.class)
 	public ResponseEntity<?> update(@RequestBody @Valid Topico topico){
 		   check(topico.getId());
-		   topicoRepository.save(topico);
+		   topicoService.update(topico);
 		   return ResponseEntity.ok(new TopicoDTO(topico) );
 	}
 	
@@ -76,11 +76,12 @@ public class TopicoController {
 	@Transactional
 	public ResponseEntity<?> delete(@PathVariable Long id){
 		check(id);
-		return topicoService.delete(id);
+		topicoService.delete(id);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 	
 	private void check(Long id)  {
-	 Optional<Topico> topico=	topicoRepository.findById(id);
+	 Optional<Topico> topico=	topicoService.findByIdTopico(id);
 	 if(! topico.isPresent()) 
 		 throw new ResourceNotFoundException("Topico Not Found for id " + id);
 	 
