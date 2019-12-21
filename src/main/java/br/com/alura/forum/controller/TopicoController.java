@@ -8,6 +8,8 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,12 +42,14 @@ public class TopicoController {
 	private TopicoService topicoService;
 
 	@RequestMapping(method = RequestMethod.GET)
+	@Cacheable(value = "allList")
 	public ResponseEntity<?> allList(@RequestParam int page, @RequestParam int size, @RequestParam String sort) {
-		Page<TopicoDTO> list = topicoService.allList(page, size,sort);
+		Page<TopicoDTO> list = topicoService.allList(page, size, sort);
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/burcarPorNomeCurso/{nome}", method = RequestMethod.GET)
+	@Cacheable(value="findByNameCourse")
 	public ResponseEntity<?> findByNameCourse(@PathVariable String nome) {
 
 		List<TopicoDTO> topicoDTOs = topicoService.findByNameCourse(nome);
@@ -55,11 +59,13 @@ public class TopicoController {
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id) {
 		check(id);
-		return topicoService.getById(id);
+		TopicoDTO topicoDTO = topicoService.getById(id);
+		return new ResponseEntity<>(topicoDTO, HttpStatus.OK);
 	}
 
 	@PostMapping
 	@Transactional
+	@CacheEvict(value = "findByNameCourse", allEntries = true)
 	public ResponseEntity<TopicoDTO> register(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {
 		Topico topico = topicoService.register(form);
 
@@ -70,6 +76,7 @@ public class TopicoController {
 
 	@PutMapping
 	@Transactional(rollbackOn = Exception.class)
+	@CacheEvict(value = "findByNameCourse", allEntries = true)
 	public ResponseEntity<?> update(@RequestBody @Valid Topico topico) {
 		check(topico.getId());
 		topicoService.update(topico);
@@ -78,6 +85,7 @@ public class TopicoController {
 
 	@DeleteMapping("/{id}")
 	@Transactional
+	@CacheEvict(value = "findByNameCourse", allEntries = true)
 	public ResponseEntity<?> delete(@PathVariable Long id) {
 		check(id);
 		topicoService.delete(id);

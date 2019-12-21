@@ -44,15 +44,14 @@ public class TopicoService {
         return 	TopicoDTO.converter(listTopico);	
 	}
 
-	public ResponseEntity<?> getById(Long id) {
+	public TopicoDTO getById(Long id) {
 		Topico topico = topicoRepository.getOne(id);
-		return ResponseEntity.ok(new TopicoDTO(topico));
+		return new TopicoDTO(topico);
 
 	}
 
-	public ResponseEntity<?> delete(Long id) {
+	public void delete(Long id) {
 		topicoRepository.deleteById(id);
-		return ResponseEntity.ok().build();
 	}
 	
 	
