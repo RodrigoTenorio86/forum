@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+
 import br.com.alura.forum.modelo.Topico;
 
 public class TopicoDTO {
@@ -52,8 +54,12 @@ public class TopicoDTO {
 		this.dataCriacao = dataCriacao;
 	}
 
-	public static List<TopicoDTO> coverter(List<Topico> topicos) {
+	public static List<TopicoDTO> converter(List<Topico> topicos){
 		return topicos.stream().map(TopicoDTO::new).collect(Collectors.toList());
+	}
+	
+	public static Page<TopicoDTO> converter(Page<Topico> topicos) {
+		return topicos.map(TopicoDTO::new);
 	}
 
 }

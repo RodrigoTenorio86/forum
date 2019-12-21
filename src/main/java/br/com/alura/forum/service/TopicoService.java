@@ -7,6 +7,10 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,15 +32,16 @@ public class TopicoService {
 	@Autowired
 	private CursoRepository cursoRepository;
 
-	public List<TopicoDTO> allList() {
-		List<Topico> listTopicos = topicoRepository.findAll();
-		return TopicoDTO.coverter(listTopicos);
+	public Page<TopicoDTO> allList(int page, int size, String sort) {
+		Pageable paginacao = PageRequest.of(page, size, Direction.DESC, sort);
+		Page<Topico> listTopicos= topicoRepository.findAll(paginacao);
+		return TopicoDTO.converter(listTopicos);
 
 	}
 
-	public ResponseEntity<?> findByNameCourse(String nome) {
+	public List<TopicoDTO> findByNameCourse(String nome) {
 		List<Topico> listTopico = topicoRepository.findByCursoNome(nome);
-		return ResponseEntity.ok(TopicoDTO.coverter(listTopico));
+        return 	TopicoDTO.converter(listTopico);	
 	}
 
 	public ResponseEntity<?> getById(Long id) {

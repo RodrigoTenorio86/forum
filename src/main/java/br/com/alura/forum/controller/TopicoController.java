@@ -8,7 +8,9 @@ import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,61 +33,62 @@ import br.com.alura.forum.service.TopicoService;
 import br.com.alura.forum.error.ResourceNotFoundException;
 
 @RestController
-@RequestMapping(path= "/v1/topicos", produces=  { "application/json" }, consumes = { "application/json" })
+@RequestMapping(path = "/v1/topicos", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class TopicoController {
 
 	@Autowired
 	private TopicoService topicoService;
-	
-
 
 	@RequestMapping(method = RequestMethod.GET)
-	public List<TopicoDTO> allList() {
-		return topicoService.allList();
+	public ResponseEntity<?> allList(@RequestParam int page, @RequestParam int size, @RequestParam String sort) {
+		Page<TopicoDTO> list = topicoService.allList(page, size,sort);
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/burcarPorNomeCurso/{nome}", method = RequestMethod.GET)
 	public ResponseEntity<?> findByNameCourse(@PathVariable String nome) {
-		return topicoService.findByNameCourse(nome);
+
+		List<TopicoDTO> topicoDTOs = topicoService.findByNameCourse(nome);
+		return new ResponseEntity<>(topicoDTOs, HttpStatus.OK);
 	}
-	
-	@GetMapping(value="/{id}")
+
+	@GetMapping(value = "/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id) {
 		check(id);
-	    return topicoService.getById(id);
+		return topicoService.getById(id);
 	}
-	
+
 	@PostMapping
 	@Transactional
-	public ResponseEntity<TopicoDTO> register(@RequestBody @Valid TopicoForm form,UriComponentsBuilder uriBuilder) {
+	public ResponseEntity<TopicoDTO> register(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {
 		Topico topico = topicoService.register(form);
-		
-		URI uri= uriBuilder.path("/{id}").buildAndExpand(topico.getId()).toUri();
+
+		URI uri = uriBuilder.path("/{id}").buildAndExpand(topico.getId()).toUri();
 //	    ResponseEntity<?> outraFormaDeRespond=	new ResponseEntity<>(uri,HttpStatus.CREATED);
 		return ResponseEntity.created(uri).body(new TopicoDTO(topico));
 	}
-	
+
 	@PutMapping
 	@Transactional(rollbackOn = Exception.class)
-	public ResponseEntity<?> update(@RequestBody @Valid Topico topico){
-		   check(topico.getId());
-		   topicoService.update(topico);
-		   return ResponseEntity.ok(new TopicoDTO(topico) );
+	public ResponseEntity<?> update(@RequestBody @Valid Topico topico) {
+		check(topico.getId());
+		topicoService.update(topico);
+		return ResponseEntity.ok(new TopicoDTO(topico));
 	}
-	
+
 	@DeleteMapping("/{id}")
 	@Transactional
-	public ResponseEntity<?> delete(@PathVariable Long id){
+	public ResponseEntity<?> delete(@PathVariable Long id) {
 		check(id);
 		topicoService.delete(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
-	
-	private void check(Long id)  {
-	 Optional<Topico> topico=	topicoService.findByIdTopico(id);
-	 if(! topico.isPresent()) 
-		 throw new ResourceNotFoundException("Topico Not Found for id " + id);
-	 
+
+	private void check(Long id) {
+		Optional<Topico> topico = topicoService.findByIdTopico(id);
+		if (!topico.isPresent())
+			throw new ResourceNotFoundException("Topico Not Found for id " + id);
+
 	}
 
 }
