@@ -35,7 +35,7 @@ import br.com.alura.forum.service.TopicoService;
 import br.com.alura.forum.error.ResourceNotFoundException;
 
 @RestController
-@RequestMapping(path = "/v1/topicos", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(path = "/v1/topicos")
 public class TopicoController {
 
 	@Autowired
