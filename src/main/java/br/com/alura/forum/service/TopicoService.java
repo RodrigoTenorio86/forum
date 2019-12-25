@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import org.hibernate.criterion.DetachedCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import br.com.alura.forum.controller.dto.DetalhesDoTopicoDto;
 import br.com.alura.forum.controller.dto.TopicoDTO;
 import br.com.alura.forum.controller.dto.TopicoForm;
+import br.com.alura.forum.controller.form.UpadateTopico;
 import br.com.alura.forum.modelo.Topico;
 import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
@@ -44,9 +47,9 @@ public class TopicoService {
         return 	TopicoDTO.converter(listTopico);	
 	}
 
-	public TopicoDTO getById(Long id) {
+	public DetalhesDoTopicoDto getById(Long id) {
 		Topico topico = topicoRepository.getOne(id);
-		return new TopicoDTO(topico);
+		return new DetalhesDoTopicoDto(topico);
 
 	}
 
@@ -62,8 +65,12 @@ public class TopicoService {
 		return topico;		
 	}	
 	
-	public void update(Topico topico){
-		 topicoRepository.saveAndFlush(topico);
+	public Topico  update(Long id,UpadateTopico updatetopico){
+		Topico topico=topicoRepository.getOne(id);
+		topico.setMensagem(updatetopico.getMensagem());
+		topico.setTitulo(updatetopico.getTitulo());
+		return topico;
+		 
 	}
 
 	public Optional<Topico> findByIdTopico(Long id) {

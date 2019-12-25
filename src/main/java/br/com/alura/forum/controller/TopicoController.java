@@ -25,8 +25,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import br.com.alura.forum.controller.dto.DetalhesDoTopicoDto;
 import br.com.alura.forum.controller.dto.TopicoDTO;
 import br.com.alura.forum.controller.dto.TopicoForm;
+import br.com.alura.forum.controller.form.UpadateTopico;
 import br.com.alura.forum.error.ResourceNotFoundException;
 import br.com.alura.forum.modelo.Topico;
 import br.com.alura.forum.service.TopicoService;
@@ -56,8 +58,8 @@ public class TopicoController {
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<?> getById(@PathVariable Long id) {
 		check(id);
-		TopicoDTO topicoDTO = topicoService.getById(id);
-		return new ResponseEntity<>(topicoDTO, HttpStatus.OK);
+		DetalhesDoTopicoDto detalhesDoTopicoDto = topicoService.getById(id);
+		return new ResponseEntity<>(detalhesDoTopicoDto, HttpStatus.OK);
 	}
 
 	@PostMapping
@@ -66,17 +68,17 @@ public class TopicoController {
 	public ResponseEntity<TopicoDTO> register(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {
 		Topico topico = topicoService.register(form);
 
-		URI uri = uriBuilder.path("/{id}").buildAndExpand(topico.getId()).toUri();
+		URI uri = uriBuilder.path("/v1/topicos/{id}").buildAndExpand(topico.getId()).toUri();
 //	    ResponseEntity<?> outraFormaDeRespond=	new ResponseEntity<>(uri,HttpStatus.CREATED);
 		return ResponseEntity.created(uri).body(new TopicoDTO(topico));
 	}
 
-	@PutMapping
+	@PutMapping("/{id}")
 	@Transactional(rollbackOn = Exception.class)
 	@CacheEvict(value = "findByNameCourse", allEntries = true)
-	public ResponseEntity<?> update(@RequestBody @Valid Topico topico) {
-		check(topico.getId());
-		topicoService.update(topico);
+	public ResponseEntity<?> update(@PathVariable Long id,@RequestBody @Valid UpadateTopico updatetopico) {
+		check(id);
+		Topico topico= topicoService.update(id,updatetopico);
 		return ResponseEntity.ok(new TopicoDTO(topico));
 	}
 
