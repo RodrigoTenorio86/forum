@@ -49,7 +49,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
                   	  .antMatchers(HttpMethod.GET,"/v1/topicos/*").permitAll()
                   	  .antMatchers(HttpMethod.POST, "/v1/auth").permitAll()
                   	  .antMatchers(HttpMethod.GET,"/alura/actuator").permitAll()
-                  	.antMatchers(HttpMethod.GET,"/alura/actuator/**").permitAll()
+                  	  .antMatchers(HttpMethod.GET,"/alura/actuator/**").permitAll()
                   	  .anyRequest().authenticated()
                   	  .and().csrf().disable()
                   	  .sessionManagement()
@@ -60,6 +60,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
     //config. de recursos estaticos(js,css, imagens, etc..)
 	@Override
 	public void configure(WebSecurity web) throws Exception {
+		web.ignoring()
+           .antMatchers("/**.html", "/v2/api-docs", "/webjars/**", "/configuration/**", "/swagger-resources/**");
 
 	}
 	
