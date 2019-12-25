@@ -48,6 +48,8 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
                   	  .antMatchers(HttpMethod.GET,"/v1/topicos").permitAll()
                   	  .antMatchers(HttpMethod.GET,"/v1/topicos/*").permitAll()
                   	  .antMatchers(HttpMethod.POST, "/v1/auth").permitAll()
+                  	  .antMatchers(HttpMethod.GET,"/alura/actuator").permitAll()
+                  	.antMatchers(HttpMethod.GET,"/alura/actuator/**").permitAll()
                   	  .anyRequest().authenticated()
                   	  .and().csrf().disable()
                   	  .sessionManagement()
