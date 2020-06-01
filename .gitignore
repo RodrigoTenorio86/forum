@@ -32,3 +32,4 @@ build/
 
 *.class
 bin/
+/bin/src/main/java/br/com/alura/forum
